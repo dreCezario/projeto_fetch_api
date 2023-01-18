@@ -7,6 +7,10 @@ const postPage = document.querySelector('#post')
 const postContainer = document.querySelector('#post-container')
 const commentsContainer = document.querySelector('#comments-container')
 
+const commentForm = document.querySelector('#comment-form')
+const emailInput = document.querySelector('#email')
+const bodyInput = document.querySelector('#body')
+
 // Get id from URL
 const urlSearchParams = new URLSearchParams(window.location.search)
 const postId = urlSearchParams.get("id")
@@ -44,7 +48,6 @@ async function getAllPosts() {
 }
 
 // Get individual post
-
 async function getPost(id) {
     const [responsePost, responseComments] = await Promise.all([
         fetch(`${url}/${id}`),
@@ -88,8 +91,37 @@ function createComment(comment) {
 
 }
 
-if(!postId){
-    getAllPosts()   
-} else{
-    getPost(postId);
+// Post a comment
+async function postComment (comment) {
+
+    const response = await fetch(url, {
+        method: "POST",
+        body: comment,
+        headers: {
+            "Content-type": "application/json",
+        },
+    })
+
+    const data = await response.json
+
+    createComment(data);
 }
+
+if (!postId) {
+    getAllPosts();
+  } else {
+    getPost(postId);
+  
+    commentForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+  
+      let comment = {
+        email: emailInput.value,
+        body: bodyInput.value,
+      };
+  
+      comment = JSON.stringify(comment);
+  
+      postComment(comment);
+    });
+  }
